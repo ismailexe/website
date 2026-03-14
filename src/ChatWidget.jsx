@@ -152,7 +152,7 @@ export default function ChatWidget() {
           aria-label="Toggle chat"
         >
           <span className="chat-toggle-dot" />
-          osimhen
+          OSİMHEN
         </button>
       </div>
     </div>
