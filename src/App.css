@@ -592,7 +592,7 @@ section:last-child { border-bottom: none; }
 }
 
 .osimhen-figure {
-  height: 80px;
+  height: 120px;
   width: auto;
   object-fit: contain;
   animation: osimhenBounce 1.2s ease-in-out infinite alternate;
