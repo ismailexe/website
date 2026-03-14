@@ -38,8 +38,6 @@ ABOUT THE WEBSITE:
 
 When asked about İsmail Efe, his skills, education, or this website, answer based on the info above. For all other topics, answer as a helpful general assistant.`
 
-export const maxDuration = 60
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
@@ -56,6 +54,7 @@ export default async function handler(req, res) {
   res.setHeader('Content-Type', 'text/event-stream')
   res.setHeader('Cache-Control', 'no-cache')
   res.setHeader('Connection', 'keep-alive')
+  res.flushHeaders()
 
   try {
     const stream = await client.chat.completions.create({
