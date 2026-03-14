@@ -137,14 +137,40 @@ export default function ChatWidget() {
         </div>
       )}
 
-      <button
-        className={`chat-toggle${isOpen ? ' active' : ''}`}
-        onClick={() => setIsOpen(prev => !prev)}
-        aria-label="Toggle chat"
-      >
-        <span className="chat-toggle-dot" />
-        osimhen
-      </button>
+      <div className="chat-toggle-wrapper">
+        {!isOpen && (
+          <div className="osimhen-figure" aria-hidden="true">
+            <svg viewBox="0 0 32 52" width="28" height="44" fill="none">
+              {/* Head */}
+              <circle cx="16" cy="5" r="4.5" fill="#f5c518"/>
+              {/* Left arm raised */}
+              <line x1="11" y1="14" x2="3" y2="6" stroke="#FFD700" strokeWidth="3" strokeLinecap="round"/>
+              {/* Right arm raised */}
+              <line x1="21" y1="14" x2="29" y2="6" stroke="#FFD700" strokeWidth="3" strokeLinecap="round"/>
+              {/* Jersey */}
+              <rect x="10" y="11" width="12" height="13" rx="2" fill="#FFD700"/>
+              {/* Shorts */}
+              <rect x="10" y="24" width="12" height="8" rx="1" fill="#CC0000"/>
+              {/* Left leg */}
+              <line x1="13" y1="32" x2="10" y2="44" stroke="#d4a96a" strokeWidth="3" strokeLinecap="round"/>
+              {/* Right leg */}
+              <line x1="19" y1="32" x2="22" y2="44" stroke="#d4a96a" strokeWidth="3" strokeLinecap="round"/>
+              {/* Left foot */}
+              <line x1="10" y1="44" x2="6" y2="46" stroke="#d4a96a" strokeWidth="2.5" strokeLinecap="round"/>
+              {/* Right foot */}
+              <line x1="22" y1="44" x2="26" y2="46" stroke="#d4a96a" strokeWidth="2.5" strokeLinecap="round"/>
+            </svg>
+          </div>
+        )}
+        <button
+          className={`chat-toggle${isOpen ? ' active' : ''}`}
+          onClick={() => setIsOpen(prev => !prev)}
+          aria-label="Toggle chat"
+        >
+          <span className="chat-toggle-dot" />
+          osimhen
+        </button>
+      </div>
     </div>
   )
 }
