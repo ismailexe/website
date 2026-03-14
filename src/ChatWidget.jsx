@@ -4,7 +4,7 @@ export default function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
-  const [isStreaming, setIsStreaming] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
   const messagesEndRef = useRef(null)
   const inputRef = useRef(null)
   const textareaRef = useRef(null)
@@ -26,15 +26,15 @@ export default function ChatWidget() {
   }, [input])
 
   async function sendMessage() {
-    if (!input.trim() || isStreaming) return
+    if (!input.trim() || isLoading) return
 
     const userMessage = { role: 'user', content: input.trim() }
     const updatedMessages = [...messages, userMessage]
     setMessages(updatedMessages)
     setInput('')
-    setIsStreaming(true)
+    setIsLoading(true)
 
-    // Add empty assistant message as placeholder
+    // Add empty assistant message as typing indicator
     setMessages(prev => [...prev, { role: 'assistant', content: '' }])
 
     try {
@@ -46,37 +46,13 @@ export default function ChatWidget() {
 
       if (!response.ok) throw new Error('Request failed')
 
-      const reader = response.body.getReader()
-      const decoder = new TextDecoder()
-      let buffer = ''
+      const data = await response.json()
 
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-
-        buffer += decoder.decode(value, { stream: true })
-        const lines = buffer.split('\n')
-        buffer = lines.pop() // keep incomplete line
-
-        for (const line of lines) {
-          if (!line.startsWith('data: ')) continue
-          const data = line.slice(6).trim()
-          if (data === '[DONE]' || data === '[ERROR]') continue
-          try {
-            const { text } = JSON.parse(data)
-            setMessages(prev => {
-              const updated = [...prev]
-              updated[updated.length - 1] = {
-                ...updated[updated.length - 1],
-                content: updated[updated.length - 1].content + text,
-              }
-              return updated
-            })
-          } catch {
-            // skip malformed chunk
-          }
-        }
-      }
+      setMessages(prev => {
+        const updated = [...prev]
+        updated[updated.length - 1] = { role: 'assistant', content: data.text }
+        return updated
+      })
     } catch {
       setMessages(prev => {
         const updated = [...prev]
@@ -88,7 +64,7 @@ export default function ChatWidget() {
         return updated
       })
     } finally {
-      setIsStreaming(false)
+      setIsLoading(false)
     }
   }
 
@@ -102,7 +78,7 @@ export default function ChatWidget() {
   const lastIsEmpty = messages.length > 0 &&
     messages[messages.length - 1].role === 'assistant' &&
     messages[messages.length - 1].content === '' &&
-    isStreaming
+    isLoading
 
   return (
     <div className="chat-widget">
@@ -111,7 +87,7 @@ export default function ChatWidget() {
           {/* Header */}
           <div className="chat-header">
             <div className="chat-header-info">
-              <span className={`chat-status-dot${isStreaming ? ' streaming' : ''}`} />
+              <span className={`chat-status-dot${isLoading ? ' streaming' : ''}`} />
               <span className="chat-agent-name">osimhen</span>
             </div>
             <button className="chat-header-close" onClick={() => setIsOpen(false)}>✕</button>
@@ -147,12 +123,12 @@ export default function ChatWidget() {
               onChange={e => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               rows={1}
-              disabled={isStreaming}
+              disabled={isLoading}
             />
             <button
               className="chat-send"
               onClick={sendMessage}
-              disabled={!input.trim() || isStreaming}
+              disabled={!input.trim() || isLoading}
               aria-label="Send"
             >
               ↑

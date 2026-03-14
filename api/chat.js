@@ -51,38 +51,20 @@ export default async function handler(req, res) {
 
   const client = new Groq({ apiKey: process.env.GROQ_API_KEY })
 
-  res.setHeader('Content-Type', 'text/event-stream')
-  res.setHeader('Cache-Control', 'no-cache')
-  res.setHeader('Connection', 'keep-alive')
-  res.flushHeaders()
-
   try {
-    const stream = await client.chat.completions.create({
+    const completion = await client.chat.completions.create({
       model: 'llama-3.3-70b-versatile',
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
         ...messages,
       ],
-      stream: true,
       max_tokens: 1024,
     })
 
-    for await (const chunk of stream) {
-      const text = chunk.choices[0]?.delta?.content || ''
-      if (text) {
-        res.write(`data: ${JSON.stringify({ text })}\n\n`)
-      }
-    }
-
-    res.write('data: [DONE]\n\n')
-    res.end()
+    const text = completion.choices[0]?.message?.content || ''
+    res.json({ text })
   } catch (error) {
     console.error('Chat error:', error)
-    if (!res.headersSent) {
-      res.status(500).json({ error: 'Internal server error' })
-    } else {
-      res.write('data: [ERROR]\n\n')
-      res.end()
-    }
+    res.status(500).json({ error: 'Internal server error' })
   }
 }
